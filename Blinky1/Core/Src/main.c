@@ -61,99 +61,17 @@ static void UpdateButton(void);
 static void UpdateDisplay(void);
 static inline void WrapIndex(void);
 
-/* LCD Functions */
-static void LCD_EnablePulse(void);
-static void LCD_Send4Bit(uint8_t data);
-static void LCD_Command(uint8_t cmd);
-static void LCD_Data(uint8_t data);
-static void LCD_Init(void);
-static void LCD_SetCursor(uint8_t row, uint8_t col);
-static void LCD_Print(char *str);
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-/* ================= LCD DRIVER (4-bit mode) ================= */
-
-static void LCD_EnablePulse(void)
-{
-    HAL_GPIO_WritePin(E_GPIO_Port, E_Pin, GPIO_PIN_SET);
-    HAL_Delay(1);
-    HAL_GPIO_WritePin(E_GPIO_Port, E_Pin, GPIO_PIN_RESET);
-    HAL_Delay(1);
-}
-
-static void LCD_Send4Bit(uint8_t data)
-{
-    HAL_GPIO_WritePin(DB4_GPIO_Port, DB4_Pin, (data & 0x01) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(DB5_GPIO_Port, DB5_Pin, (data & 0x02) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(DB6_GPIO_Port, DB6_Pin, (data & 0x04) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(DB7_GPIO_Port, DB7_Pin, (data & 0x08) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-
-    LCD_EnablePulse();
-}
-
-static void LCD_Command(uint8_t cmd)
-{
-    HAL_GPIO_WritePin(RS_GPIO_Port, RS_Pin, GPIO_PIN_RESET);
-
-    LCD_Send4Bit(cmd >> 4);
-    LCD_Send4Bit(cmd & 0x0F);
-
-    HAL_Delay(2);
-}
-
-static void LCD_Data(uint8_t data)
-{
-    HAL_GPIO_WritePin(RS_GPIO_Port, RS_Pin, GPIO_PIN_SET);
-
-    LCD_Send4Bit(data >> 4);
-    LCD_Send4Bit(data & 0x0F);
-
-    HAL_Delay(2);
-}
-
-static void LCD_Init(void)
-{
-    HAL_Delay(50);
-
-    LCD_Command(0x33);
-    HAL_Delay(5);
-    LCD_Command(0x32);
-    HAL_Delay(5);
-    LCD_Command(0x28);   /* 4-bit, 2 line, 5x8 dots */
-    LCD_Command(0x0C);   /* Display ON, Cursor OFF */
-    LCD_Command(0x06);   /* Entry mode: increment cursor */
-    LCD_Command(0x01);   /* Clear display */
-    HAL_Delay(5);
-}
-
-static void LCD_SetCursor(uint8_t row, uint8_t col)
-{
-    uint8_t addr;
-    if (row == 0)
-        addr = 0x80 + col;
-    else
-        addr = 0xC0 + col;
-
-    LCD_Command(addr);
-}
-
-static void LCD_Print(char *str)
-{
-    while (*str)
-        LCD_Data(*str++);
-}
-
 /* Keep delay_idx in valid range [0..DELAY_COUNT-1] */
 static inline void WrapIndex(void)
 {
-    if (delay_idx >= (int8_t)DELAY_COUNT)
+    if (delay_idx >= DELAY_COUNT)
         delay_idx = 0;
     else if (delay_idx < 0)
-        delay_idx = (int8_t)DELAY_COUNT - 1;
+        delay_idx = DELAY_COUNT - 1;
 }
 
 /* LED update logic (called every ms) */
@@ -179,108 +97,7 @@ static void UpdateLED(void)
 }
 
 /* Button update logic (called every ms) */
-static void UpdateButton(void)
-{
-    /* Button with PULLDOWN: pressed = HIGH (1), released = LOW (0) */
-    uint8_t btn_raw = (HAL_GPIO_ReadPin(Button_GPIO_Port, Button_Pin) == GPIO_PIN_SET) ? 1 : 0;
 
-    /* --- Debounce --- */
-    if (btn_raw != btn_stable)
-    {
-        btn_debounce++;
-        if (btn_debounce >= DEBOUNCE_TIME_MS)
-        {
-            btn_stable = btn_raw;
-            btn_debounce = 0;
-        }
-    }
-    else
-    {
-        btn_debounce = 0;
-    }
-
-    /* --- Rising edge (press detected) --- */
-    if (btn_stable && !btn_prev)
-    {
-        btn_press_time = 0;
-
-        if (btn_clicks < 2)
-            btn_clicks++;
-
-        btn_click_timer = 0;
-    }
-
-    /* --- While pressed --- */
-    if (btn_stable)
-    {
-        btn_press_time++;
-
-        /* Hold detection */
-        if (!btn_hold && (btn_press_time >= HOLD_TIME_MS))
-        {
-            btn_hold = 1;
-            btn_clicks = 0;
-            btn_click_timer = 0;
-            current_mode = 3;  /* Set HOLD mode for display */
-
-            /* Halve all delays */
-            for (uint8_t i = 0; i < DELAY_COUNT; i++)
-            {
-                current_delays[i] = base_delays[i] / 2u;
-                if (current_delays[i] == 0u)
-                    current_delays[i] = 1u;
-            }
-        }
-    }
-
-    /* --- Falling edge (release detected) --- */
-    if (!btn_stable && btn_prev)
-    {
-        btn_press_time = 0;
-
-        if (btn_hold)
-        {
-            /* Restore normal delays */
-            for (uint8_t i = 0; i < DELAY_COUNT; i++)
-                current_delays[i] = base_delays[i];
-
-            current_mode = 0;  /* Back to IDLE */
-        }
-
-        btn_hold = 0;
-        btn_click_timer = 0;
-    }
-
-    /* --- Click resolution (button released, not holding) --- */
-    if (!btn_hold && !btn_stable && (btn_clicks > 0))
-    {
-        btn_click_timer++;
-
-        if (btn_click_timer >= CLICK_WINDOW_MS)
-        {
-            if (btn_clicks == 1)
-            {
-                /* Single click: move to next delay */
-                delay_idx += direction;
-                WrapIndex();
-                led_timer = 0;
-                toggle_count = 0;
-                current_mode = 1;  /* SINGLE mode for display */
-            }
-            else
-            {
-                /* Double click: reverse direction */
-                direction = -direction;
-                current_mode = 2;  /* DOUBLE mode for display */
-            }
-
-            btn_clicks = 0;
-            btn_click_timer = 0;
-        }
-    }
-
-    btn_prev = btn_stable;
-}
 
 /* Display update - ONLY call from main loop, NOT from ISR! */
 static void UpdateDisplay(void)
