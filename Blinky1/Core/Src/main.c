@@ -4,16 +4,6 @@
   * @file           : main.c
   * @brief          : Main program body
   ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
   */
 /* USER CODE END Header */
 
@@ -23,30 +13,15 @@
 #include <stdio.h>
 #include <string.h>
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
 #define HOLD_TIME_MS       200u
 #define CLICK_WINDOW_MS    200u
-#define DEBOUNCE_TIME_MS   20u
+#define DEBOUNCE_TIME_MS   30u
 #define DELAY_COUNT        4u
 
 /* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
@@ -62,13 +37,13 @@ static volatile int8_t delay_idx = 0;
 static volatile int8_t direction = 1;
 
 /* Button state */
-static uint8_t btn_stable = 0;
-static uint8_t btn_prev = 0;
-static uint32_t btn_debounce = 0;
-static uint32_t btn_press_time = 0;
-static uint32_t btn_click_timer = 0;
-static uint8_t btn_clicks = 0;
-static uint8_t btn_hold = 0;
+static volatile uint8_t btn_stable = 0;
+static volatile uint8_t btn_prev = 0;
+static volatile uint32_t btn_debounce = 0;
+static volatile uint32_t btn_press_time = 0;
+static volatile uint32_t btn_click_timer = 0;
+static volatile uint8_t btn_clicks = 0;
+static volatile uint8_t btn_hold = 0;
 
 /* LCD display tracking */
 static uint8_t prev_mode = 255;
@@ -206,7 +181,8 @@ static void UpdateLED(void)
 /* Button update logic (called every ms) */
 static void UpdateButton(void)
 {
-    uint8_t btn_raw = (uint8_t)HAL_GPIO_ReadPin(Button_GPIO_Port, Button_Pin);
+    /* Button with PULLDOWN: pressed = HIGH (1), released = LOW (0) */
+    uint8_t btn_raw = (HAL_GPIO_ReadPin(Button_GPIO_Port, Button_Pin) == GPIO_PIN_SET) ? 1 : 0;
 
     /* --- Debounce --- */
     if (btn_raw != btn_stable)
@@ -314,7 +290,7 @@ static void UpdateDisplay(void)
     /* Update mode display */
     if (current_mode != prev_mode)
     {
-        LCD_SetCursor(0, 0);
+        LCD_SetCursor(0,0);
         switch (current_mode)
         {
             case 3:
@@ -362,28 +338,10 @@ static void HandleTick(void)
 
 /* USER CODE END 0 */
 
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
-    /* USER CODE BEGIN 1 */
-    /* USER CODE END 1 */
-
-    /* MCU Configuration--------------------------------------------------------*/
     HAL_Init();
-
-    /* USER CODE BEGIN Init */
-    /* USER CODE END Init */
-
-    /* Configure the system clock */
     SystemClock_Config();
-
-    /* USER CODE BEGIN SysInit */
-    /* USER CODE END SysInit */
-
-    /* Initialize all configured peripherals */
     MX_GPIO_Init();
 
     /* USER CODE BEGIN 2 */
@@ -396,7 +354,7 @@ int main(void)
     LCD_Init();
 
     LCD_SetCursor(0, 0);
-    LCD_Print("STM32F0 ");
+    LCD_Print("Mode: IDLE      ");
     LCD_SetCursor(1, 0);
     LCD_Print("Delay: 250 ms   ");
 
@@ -404,23 +362,13 @@ int main(void)
 
     /* USER CODE END 2 */
 
-    /* Infinite loop */
-    /* USER CODE BEGIN WHILE */
     while (1)
     {
         UpdateDisplay();
-        HAL_Delay(200);  /* Update LCD every 200ms */
+        HAL_Delay(200);
     }
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-    /* USER CODE END 3 */
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
 void SystemClock_Config(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -449,52 +397,6 @@ void SystemClock_Config(void)
         Error_Handler();
     }
 }
-
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
-//static void MX_GPIO_Init(void)
-//{
-//    GPIO_InitTypeDef GPIO_InitStruct = {0};
-//
-//    /* USER CODE BEGIN MX_GPIO_Init_1 */
-//    /* USER CODE END MX_GPIO_Init_1 */
-//
-//    /* GPIO Ports Clock Enable */
-//    __HAL_RCC_GPIOA_CLK_ENABLE();
-//    __HAL_RCC_GPIOC_CLK_ENABLE();
-//
-//    /* Configure LED pins output level */
-//    HAL_GPIO_WritePin(GPIOC, LD4_Pin | LD3_Pin, GPIO_PIN_RESET);
-//
-//    /* Configure LCD pins output level (PA1-PA6) */
-//    HAL_GPIO_WritePin(GPIOA, RS_Pin | E_Pin | DB4_Pin | DB5_Pin | DB6_Pin | DB7_Pin, GPIO_PIN_RESET);
-//
-//    /* Configure button input (PA0) */
-//    GPIO_InitStruct.Pin = Button_Pin;
-//    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-//    GPIO_InitStruct.Pull = GPIO_PULLUP;
-//    HAL_GPIO_Init(Button_GPIO_Port, &GPIO_InitStruct);
-//
-//    /* Configure LCD output pins (PA1-PA6: RS, E, DB4-DB7) */
-//    GPIO_InitStruct.Pin = RS_Pin | E_Pin | DB4_Pin | DB5_Pin | DB6_Pin | DB7_Pin;
-//    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-//    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-//
-//    /* Configure LED outputs (PC8-PC9) */
-//    GPIO_InitStruct.Pin = LD4_Pin | LD3_Pin;
-//    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-//    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-//
-//    /* USER CODE BEGIN MX_GPIO_Init_2 */
-//    /* USER CODE END MX_GPIO_Init_2 */
-//}
 
 /* USER CODE BEGIN 4 */
 
