@@ -1,23 +1,6 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : lcd.c
-  * @brief          : LCD 16x2 driver implementation (4-bit mode)
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-
 #include "LCD.h"
 
-/* Private function prototypes */
-static void LCD_EnablePulse(void);
-static void LCD_Send4Bit(uint8_t data);
-static void LCD_Command(uint8_t cmd);
-static void LCD_Data(uint8_t data);
-
-/* Private functions */
-
-static void LCD_EnablePulse(void)
+void LCD_EnablePulse(void)
 {
     HAL_GPIO_WritePin(E_GPIO_Port, E_Pin, GPIO_PIN_SET);
     HAL_Delay(1);
@@ -25,7 +8,7 @@ static void LCD_EnablePulse(void)
     HAL_Delay(1);
 }
 
-static void LCD_Send4Bit(uint8_t data)
+void LCD_Send4Bit(uint8_t data)
 {
     HAL_GPIO_WritePin(DB4_GPIO_Port, DB4_Pin, (data & 0x01) ? GPIO_PIN_SET : GPIO_PIN_RESET);
     HAL_GPIO_WritePin(DB5_GPIO_Port, DB5_Pin, (data & 0x02) ? GPIO_PIN_SET : GPIO_PIN_RESET);
@@ -35,7 +18,7 @@ static void LCD_Send4Bit(uint8_t data)
     LCD_EnablePulse();
 }
 
-static void LCD_Command(uint8_t cmd)
+void LCD_Command(uint8_t cmd)
 {
     HAL_GPIO_WritePin(RS_GPIO_Port, RS_Pin, GPIO_PIN_RESET);
 
@@ -45,7 +28,7 @@ static void LCD_Command(uint8_t cmd)
     HAL_Delay(2);
 }
 
-static void LCD_Data(uint8_t data)
+void LCD_Data(uint8_t data)
 {
     HAL_GPIO_WritePin(RS_GPIO_Port, RS_Pin, GPIO_PIN_SET);
 
@@ -72,11 +55,11 @@ void LCD_Init(void)
     HAL_Delay(5);
 }
 
-void LCD_Clear(void)
-{
-    LCD_Command(0x01);
-    HAL_Delay(2);
-}
+//void LCD_Clear(void)
+//{
+//    LCD_Command(0x01);
+//    HAL_Delay(2);
+//}
 
 void LCD_SetCursor(uint8_t row, uint8_t col)
 {
@@ -95,7 +78,7 @@ void LCD_Print(char *str)
         LCD_Data(*str++);
 }
 
-void LCD_PrintChar(char c)
-{
-    LCD_Data(c);
-}
+//void LCD_PrintChar(char c)
+//{
+//    LCD_Data(c);
+//}

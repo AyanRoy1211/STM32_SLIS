@@ -7,6 +7,8 @@ extern "C" {
 #endif
 
 #include "main.h"
+#include "stdio.h"
+#include "strings.h"
 
 /* Public function prototypes */
 void LCD_Init(void);

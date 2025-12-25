@@ -1,9 +1,27 @@
 #include "ButtonHandler.h"
-#include "main.h"
-#include "stdio.h"
 
+#define HOLD_TIME_MS 200
+#define CLICK_WINDOW_MS  200
+#define DEBOUNCE_TIME_MS 30
 
-static void UpdateButton(void)
+extern uint32_t led_timer;
+extern int8_t delay_idx;
+extern int8_t direction;
+extern uint32_t base_delays[DELAY_COUNT];
+extern uint32_t current_delays[DELAY_COUNT];
+extern uint8_t current_mode;
+extern uint8_t toggle_count;
+
+/* Button state */
+uint8_t btn_stable = 0;
+uint8_t btn_prev = 0;
+int32_t btn_debounce = 0;
+uint32_t btn_press_time = 0;
+uint32_t btn_click_timer = 0;
+uint8_t btn_clicks = 0;
+uint8_t btn_hold = 0;
+
+void UpdateButton(void)
 {
     /* Button with PULLDOWN: pressed = HIGH (1), released = LOW (0) */
     uint8_t btn_raw = (HAL_GPIO_ReadPin(Button_GPIO_Port, Button_Pin) == GPIO_PIN_SET) ? 1 : 0;

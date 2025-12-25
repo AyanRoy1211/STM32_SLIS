@@ -1,0 +1,2 @@
+../Core/Src/LEDApplication.c:12:6:WrapIndex	8	static
+../Core/Src/LEDApplication.c:21:6:UpdateLED	8	static

@@ -1,13 +1,10 @@
-/*
- * ButtonHandler.h
- *
- *  Created on: 24-Dec-2025
- *      Author: AYAN ROY
- */
-
 #ifndef INC_BUTTONHANDLER_H_
 #define INC_BUTTONHANDLER_H_
 
-
+#include "main.h"
+#include "stm32f0xx_hal.h"
+#include "LEDApplication.h"
+#include "LCDApplication.h"
+void UpdateButton(void);
 
 #endif /* INC_BUTTONHANDLER_H_ */

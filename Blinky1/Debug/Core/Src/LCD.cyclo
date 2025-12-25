@@ -1,9 +1,7 @@
-../Core/Src/LCD.c:20:13:LCD_EnablePulse	1
-../Core/Src/LCD.c:28:13:LCD_Send4Bit	1
-../Core/Src/LCD.c:38:13:LCD_Command	1
-../Core/Src/LCD.c:48:13:LCD_Data	1
-../Core/Src/LCD.c:60:6:LCD_Init	1
-../Core/Src/LCD.c:75:6:LCD_Clear	1
-../Core/Src/LCD.c:81:6:LCD_SetCursor	2
-../Core/Src/LCD.c:92:6:LCD_Print	2
-../Core/Src/LCD.c:98:6:LCD_PrintChar	1
+../Core/Src/LCD.c:3:6:LCD_EnablePulse	1
+../Core/Src/LCD.c:11:6:LCD_Send4Bit	1
+../Core/Src/LCD.c:21:6:LCD_Command	1
+../Core/Src/LCD.c:31:6:LCD_Data	1
+../Core/Src/LCD.c:43:6:LCD_Init	1
+../Core/Src/LCD.c:64:6:LCD_SetCursor	2
+../Core/Src/LCD.c:75:6:LCD_Print	2

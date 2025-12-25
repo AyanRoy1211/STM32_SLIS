@@ -1,10 +1,6 @@
-../Core/Src/main.c:69:20:WrapIndex	8	static
-../Core/Src/main.c:78:13:UpdateLED	8	static
-../Core/Src/main.c:100:13:UpdateButton	16	static
-../Core/Src/main.c:204:13:UpdateDisplay	32	static
-../Core/Src/main.c:251:13:HandleTick	8	static
-../Core/Src/main.c:259:5:main	8	static
-../Core/Src/main.c:290:6:SystemClock_Config	80	static
-../Core/Src/main.c:321:6:HAL_SYSTICK_Callback	8	static
-../Core/Src/main.c:328:6:Error_Handler	8	static,ignoring_inline_asm
-../Core/Src/main.c:337:6:assert_failed	16	static
+../Core/Src/main.c:39:13:HandleTick	8	static
+../Core/Src/main.c:47:5:main	8	static
+../Core/Src/main.c:78:6:SystemClock_Config	80	static
+../Core/Src/main.c:109:6:HAL_SYSTICK_Callback	8	static
+../Core/Src/main.c:116:6:Error_Handler	8	static,ignoring_inline_asm
+../Core/Src/main.c:125:6:assert_failed	16	static
