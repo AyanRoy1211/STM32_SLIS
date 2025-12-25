@@ -9,20 +9,16 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "gpio.h"
 #include <stdio.h>
 #include <string.h>
 #include "LCDApplication.h"
 #include "LEDApplication.h"
 #include "ButtonHandler.h"
-#include "LCD.h"
 
-/* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
 
-/* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -38,8 +34,8 @@ void SystemClock_Config(void);
 
 static void HandleTick(void)
 {
+	UpdateButton();
     UpdateLED();
-    UpdateButton();
 }
 
 /* USER CODE END 0 */
@@ -55,16 +51,12 @@ int main(void)
     /* Start with LED off */
     HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
 
-    /* Initialize LCD display */
-    HAL_Delay(100);
     LCD_Init();
 
     LCD_SetCursor(0, 0);
     LCD_Print("Mode: IDLE      ");
     LCD_SetCursor(1, 0);
     LCD_Print("Delay: 250 ms   ");
-
-    HAL_Delay(2000);
 
     /* USER CODE END 2 */
 
@@ -108,7 +100,7 @@ void SystemClock_Config(void)
 
 void HAL_SYSTICK_Callback(void)
 {
-    HandleTick();
+	HandleTick();
 }
 
 /* USER CODE END 4 */

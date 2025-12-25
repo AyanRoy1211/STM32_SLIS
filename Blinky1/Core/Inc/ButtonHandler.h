@@ -3,8 +3,7 @@
 
 #include "main.h"
 #include "stm32f0xx_hal.h"
-#include "LEDApplication.h"
-#include "LCDApplication.h"
+
 void UpdateButton(void);
 
 #endif /* INC_BUTTONHANDLER_H_ */

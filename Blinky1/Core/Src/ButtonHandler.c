@@ -4,13 +4,7 @@
 #define CLICK_WINDOW_MS  200
 #define DEBOUNCE_TIME_MS 30
 
-extern uint32_t led_timer;
-extern int8_t delay_idx;
-extern int8_t direction;
-extern uint32_t base_delays[DELAY_COUNT];
-extern uint32_t current_delays[DELAY_COUNT];
 extern uint8_t current_mode;
-extern uint8_t toggle_count;
 
 /* Button state */
 uint8_t btn_stable = 0;
@@ -64,14 +58,6 @@ void UpdateButton(void)
             btn_clicks = 0;
             btn_click_timer = 0;
             current_mode = 3;  /* Set HOLD mode for display */
-
-            /* Halve all delays */
-            for (uint8_t i = 0; i < DELAY_COUNT; i++)
-            {
-                current_delays[i] = base_delays[i] / 2u;
-                if (current_delays[i] == 0u)
-                    current_delays[i] = 1u;
-            }
         }
     }
 
@@ -82,10 +68,6 @@ void UpdateButton(void)
 
         if (btn_hold)
         {
-            /* Restore normal delays */
-            for (uint8_t i = 0; i < DELAY_COUNT; i++)
-                current_delays[i] = base_delays[i];
-
             current_mode = 0;  /* Back to IDLE */
         }
 
@@ -102,17 +84,10 @@ void UpdateButton(void)
         {
             if (btn_clicks == 1)
             {
-                /* Single click: move to next delay */
-                delay_idx += direction;
-                WrapIndex();
-                led_timer = 0;
-                toggle_count = 0;
                 current_mode = 1;  /* SINGLE mode for display */
             }
             else
             {
-                /* Double click: reverse direction */
-                direction = -direction;
                 current_mode = 2;  /* DOUBLE mode for display */
             }
 
