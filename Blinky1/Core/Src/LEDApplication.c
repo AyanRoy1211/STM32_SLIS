@@ -15,7 +15,7 @@ void WrapIndex(void)
 {
     if (Delay_index >= DELAY_COUNT)
         Delay_index = 0;
-    else if (Delay_index <= 0)
+    else if (Delay_index < 0)
         Delay_index = DELAY_COUNT - 1;
 }
 

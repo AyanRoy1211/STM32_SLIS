@@ -46,8 +46,8 @@ void UpdateDisplay(void)
     if ((current_mode == 1 || current_mode == 2) &&
         (HAL_GetTick() - last_mode_change >= 1000))
     {
-        current_mode = 0;
-    }
+       	current_mode = 0;
+   	}
 
     /* Update delay display */
     if (active_LED_delays[Delay_index] != prev_delay)

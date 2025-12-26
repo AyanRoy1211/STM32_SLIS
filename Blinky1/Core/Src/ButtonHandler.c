@@ -1,8 +1,8 @@
 #include "ButtonHandler.h"
 
-#define HOLD_TIME_MS 200
-#define CLICK_WINDOW_MS  200
-#define DEBOUNCE_TIME_MS 30
+#define HOLD_TIME_MS     100
+#define CLICK_WINDOW_MS  100
+#define DEBOUNCE_TIME_MS 50
 
 extern uint8_t current_mode;
 
@@ -58,6 +58,7 @@ void UpdateButton(void)
             btn_clicks = 0;
             btn_click_timer = 0;
             current_mode = 3;  /* Set HOLD mode for display */
+            UART_SendEvent(EVT_HOLD_START);
         }
     }
 
@@ -69,6 +70,7 @@ void UpdateButton(void)
         if (btn_hold)
         {
             current_mode = 0;  /* Back to IDLE */
+            UART_SendEvent(EVT_HOLD_END);
         }
 
         btn_hold = 0;
@@ -85,10 +87,12 @@ void UpdateButton(void)
             if (btn_clicks == 1)
             {
                 current_mode = 1;  /* SINGLE mode for display */
+                UART_SendEvent(EVT_SINGLE_CLICK);
             }
             else
             {
                 current_mode = 2;  /* DOUBLE mode for display */
+                UART_SendEvent(EVT_DOUBLE_CLICK);
             }
 
             btn_clicks = 0;
