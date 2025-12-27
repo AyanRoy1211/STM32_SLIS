@@ -27,13 +27,10 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "usart.h"
-#include "gpio.h"
 #include "stm32f0xx_hal.h"
-#include "UART_Application.h"
+#include "stm32f0xx_hal_uart.h"
 
 /* Private includes ----------------------------------------------------------*/
-#include "stm32f0xx_hal_uart.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
