@@ -2,13 +2,15 @@
 
 extern uint8_t current_mode;
 
-void LED_Controller_Init(LED_Controller_t *ctrl, LED_Mode_t initial_mode) {
+void LED_Controller_Init(LED_Controller_t *ctrl, LED_Mode_t initial_mode)
+{
     ctrl->mode = initial_mode;
     ctrl->blink_timer = 0;
     ctrl->duration_timer = 0;
 }
 
-void LED_Controller_SetMode(LED_Controller_t *ctrl, LED_Mode_t mode) {
+void LED_Controller_SetMode(LED_Controller_t *ctrl, LED_Mode_t mode)
+{
     ctrl->mode = mode;
     ctrl->blink_timer = 0;
     ctrl->duration_timer = 0;

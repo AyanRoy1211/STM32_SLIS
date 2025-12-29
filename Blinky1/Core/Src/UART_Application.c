@@ -37,22 +37,18 @@ void UART_OnByteReceived(void)
     switch(uart_rx_byte)
     {
         case EVT_SINGLE_CLICK:
-        	current_mode = 1;
             SetRemoteMode(1);  // Fast blink on LD4
             break;
 
         case EVT_DOUBLE_CLICK:
-        	current_mode = 2;
             SetRemoteMode(2);  // Slow blink on LD4
             break;
 
         case EVT_HOLD_START:
-        	current_mode = 3;
             SetRemoteMode(3);  // LED ON on LD4
             break;
 
         case EVT_HOLD_END:
-        	current_mode = 0;
             SetRemoteMode(0);  // LED OFF on LD4 (IDLE)
             break;
 
