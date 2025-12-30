@@ -10,15 +10,19 @@ typedef enum {
     LED_MODE_HOLD_ON
 } LED_Mode_t;
 
-typedef struct {
+typedef struct
+{
     LED_Mode_t mode;
     uint32_t blink_timer;
     uint32_t duration_timer;
+    uint32_t Fast_Blink_Period;
+    uint32_t Slow_Blink_Period;
+    uint32_t Blink_Duration;
 } LED_Controller_t;
 
-#define FAST_BLINK_PERIOD 	25
-#define SLOW_BLINK_PERIOD  	100
-#define BLINK_DURATION_MS  	1000
+//#define FAST_BLINK_PERIOD 	25
+//#define SLOW_BLINK_PERIOD  	100
+//#define BLINK_DURATION_MS  	1000
 
 void LED_Controller_Init(LED_Controller_t *ctrl, LED_Mode_t initial_mode);
 void LED_Controller_SetMode(LED_Controller_t *ctrl, LED_Mode_t mode);

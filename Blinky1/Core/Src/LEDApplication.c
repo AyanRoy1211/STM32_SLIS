@@ -2,9 +2,9 @@
 #include "LED_Controller.h"
 
 LED_Controller_t local_ctrl =
-{ LED_MODE_IDLE, 0, 0 };  // LD3
+{ LED_MODE_IDLE, 0, 0,25,100,1000};  // LD3
 LED_Controller_t remote_ctrl =
-{ LED_MODE_IDLE, 0, 0 };  // LD4
+{ LED_MODE_IDLE, 0, 0,25,500,1000};  // LD4
 
 void LED_Init()
 {

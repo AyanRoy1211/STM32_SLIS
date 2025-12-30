@@ -1,29 +1,34 @@
 #include "ButtonCore.h"
 
-uint8_t btn_stable = 0;
-uint8_t btn_prev = 0;
-int32_t btn_debounce = 0;
-uint32_t btn_press_start = 0;
-uint32_t btn_release_start = 0;
-uint8_t btn_clicks = 0;
-uint8_t btn_hold = 0;
-uint32_t btn_click_timer = 0;
+typedef struct
+{
+	uint8_t btn_stable;
+	uint8_t btn_prev;
+	int32_t btn_debounce;
+	uint32_t btn_press_start;
+	uint32_t btn_release_start;
+	uint8_t btn_clicks;
+	uint8_t btn_hold;
+	uint32_t btn_click_timer;
+}ButtonStates_t;
+
 static BUTTON_EVENT_TYPEDEF_ENUM pending_event = BUTTON_EVENT_NONE;
+static ButtonStates_t button = {0,0,0,0,0,0,0,0};
 
 static void Button_Debounce(uint8_t raw,uint32_t now)
 {
-	if(raw != btn_stable)
+	if(raw != button.btn_stable)
 	{
-		btn_debounce++;
-		if(btn_debounce >= DEBOUNCE_TIME_MS)
+		button.btn_debounce++;
+		if(button.btn_debounce >= DEBOUNCE_TIME_MS)
 		{
-			btn_stable = raw;
-			btn_debounce = 0;
+			button.btn_stable = raw;
+			button.btn_debounce = 0;
 		}
 	}
 	else
 	{
-		btn_debounce = 0;
+		button.btn_debounce = 0;
 	}
 }
 
@@ -34,55 +39,57 @@ void ButtonCore_Update(void)
 
     Button_Debounce(btn_raw, now);
 
-    if (btn_stable && !btn_prev) {
-        btn_press_start = now;
-        if (!btn_hold)
+    if (button.btn_stable && !button.btn_prev) {
+        button.btn_press_start = now;
+        if (!button.btn_hold)
         {
-            btn_clicks++;
-            if (btn_clicks > 2)
-            	btn_clicks = 2;
+            button.btn_clicks++;
+            if(button.btn_clicks > 2)
+            	button.btn_clicks = 2;
         }
-        btn_release_start = 0;
+        button.btn_release_start = 0;
     }
 
-    if (btn_stable && !btn_hold && (now - btn_press_start >= HOLD_TIME_MS)) {
-        btn_hold = 1;
-        btn_clicks = 0;
+    if (button.btn_stable && !button.btn_hold && (now - button.btn_press_start >= HOLD_TIME_MS))
+    {
+        button.btn_hold = 1;
+        button.btn_clicks = 0;
         pending_event = BUTTON_EVENT_HOLD_START;
     }
 
-    if (!btn_stable && btn_prev) {
-        if (btn_hold)
+    if (!button.btn_stable && button.btn_prev)
+    {
+        if (button.btn_hold)
         {
             pending_event = BUTTON_EVENT_HOLD_END;
-            btn_hold = 0;
+            button.btn_hold = 0;
         }
         else
         {
-            btn_release_start = now;
+            button.btn_release_start = now;
         }
-        btn_press_start = 0;
+        button.btn_press_start = 0;
     }
 
-    if (!btn_hold && !btn_stable && (btn_clicks > 0))
+    if (!button.btn_hold && !button.btn_stable && (button.btn_clicks > 0))
     {
-        btn_click_timer++;
-        if (btn_click_timer >= CLICK_WINDOW_MS)
+        button.btn_click_timer++;
+        if (button.btn_click_timer >= CLICK_WINDOW_MS)
         {
-            if (btn_clicks == 1)
+            if (button.btn_clicks == 1)
             {
                 pending_event = BUTTON_EVENT_SINGLE_CLICK;
-            } else if(btn_clicks == 2)
+            } else if(button.btn_clicks == 2)
             {
                 pending_event = BUTTON_EVENT_DOUBLE_CLICK;
             }
 
-            btn_clicks = 0;
-            btn_click_timer = 0;
+            button.btn_clicks = 0;
+            button.btn_click_timer = 0;
         }
     }
 
-    btn_prev = btn_stable;
+    button.btn_prev = button.btn_stable;
 }
 
 BUTTON_EVENT_TYPEDEF_ENUM GetEvent(void)
