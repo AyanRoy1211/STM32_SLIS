@@ -3,8 +3,13 @@
 
 #include "main.h"
 #include "stm32f0xx_hal.h"
-#include "UART_Application.h"
-#include "ButtonCore.h"
+
+typedef struct {
+	EVENT_CODES_ENUM PreviousEvent;
+	EVENT_CODES_ENUM CurrentEvent;
+
+	bool NewEventReceived;
+} ButtonApplicationTypedefStruct;
 
 void UpdateButton(void);
 

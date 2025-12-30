@@ -1,7 +1,5 @@
 #include "LED_Controller.h"
 
-extern uint8_t current_mode;
-
 void LED_Controller_Init(LED_Controller_t *ctrl, LED_Mode_t initial_mode)
 {
     ctrl->mode = initial_mode;
@@ -40,7 +38,6 @@ void LED_Controller_Update(LED_Controller_t *ctrl, GPIO_TypeDef *port, uint16_t 
             // Auto-expiry after 1s
             if (ctrl->duration_timer >= BLINK_DURATION_MS)
             {
-            	current_mode = 0;
                 ctrl->mode = LED_MODE_IDLE;
                 HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET);
                 ctrl->duration_timer = 0;

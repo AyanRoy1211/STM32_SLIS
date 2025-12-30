@@ -1,29 +1,34 @@
 #include "ButtonHandler.h"
+#include "ButtonCore.h"
 
-extern uint8_t current_mode;
+ButtonApplicationTypedefStruct ButtonData;
 
 void UpdateButton(void)
 {
 	ButtonCore_Update();
-	ButtonEvent_t ev = GetEvent();
+	BUTTON_EVENT_TYPEDEF_ENUM ev = GetEvent();
+
+	if (ev == BUTTON_EVENT_NONE) {
+		return;
+	}
+
+	ButtonData.PreviousEvent = ButtonData.CurrentEvent;
+	ButtonData.NewEventReceived = true;
+
 	switch(ev){
 	case BUTTON_EVENT_SINGLE_CLICK:
-		current_mode = 1;
-		UART_SendEvent(EVT_SINGLE_CLICK);
+		ButtonData.CurrentEvent = EVT_SINGLE_CLICK;
 		break;
 	case BUTTON_EVENT_DOUBLE_CLICK:
-		current_mode = 2;
-		UART_SendEvent(EVT_DOUBLE_CLICK);
+		ButtonData.CurrentEvent = EVT_DOUBLE_CLICK;
 		break;
 	case BUTTON_EVENT_HOLD_START:
-		current_mode = 3;
-		UART_SendEvent(EVT_HOLD_START);
+		ButtonData.CurrentEvent = EVT_HOLD_START;
 		break;
 	case BUTTON_EVENT_HOLD_END:
-		current_mode = 0;
-		UART_SendEvent(EVT_HOLD_END);
+		ButtonData.CurrentEvent = EVT_HOLD_END;
 		break;
-	default:
+	case BUTTON_EVENT_NONE:
 		break;
 	}
 

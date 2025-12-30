@@ -8,7 +8,7 @@ uint32_t btn_release_start = 0;
 uint8_t btn_clicks = 0;
 uint8_t btn_hold = 0;
 uint32_t btn_click_timer = 0;
-static ButtonEvent_t pending_event = BUTTON_EVENT_NONE;
+static BUTTON_EVENT_TYPEDEF_ENUM pending_event = BUTTON_EVENT_NONE;
 
 static void Button_Debounce(uint8_t raw,uint32_t now)
 {
@@ -84,9 +84,10 @@ void ButtonCore_Update(void)
 
     btn_prev = btn_stable;
 }
-ButtonEvent_t GetEvent(void)
+
+BUTTON_EVENT_TYPEDEF_ENUM GetEvent(void)
 {
-	ButtonEvent_t ev = pending_event;
+	BUTTON_EVENT_TYPEDEF_ENUM ev = pending_event;
 	pending_event = BUTTON_EVENT_NONE;
 	return ev;
 }

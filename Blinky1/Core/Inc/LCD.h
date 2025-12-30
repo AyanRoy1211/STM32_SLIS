@@ -1,4 +1,3 @@
-
 #ifndef __LCD_H
 #define __LCD_H
 
@@ -10,12 +9,8 @@ extern "C" {
 #include "stdio.h"
 #include "strings.h"
 
-/* Public function prototypes */
-void LCD_Init(void);
-void LCD_Clear(void);
-void LCD_SetCursor(uint8_t row, uint8_t col);
-void LCD_Print(char *str);
-void LCD_PrintChar(char c);
+void LCD_Command(uint8_t cmd);
+void LCD_Data(uint8_t data);
 
 #ifdef __cplusplus
 }
