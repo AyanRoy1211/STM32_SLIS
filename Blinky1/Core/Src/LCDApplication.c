@@ -1,82 +1,141 @@
 #include "LCDApplication.h"
+#include "LCDCore.h"
+#include <stdio.h>
+#define TEMP_DISPLAY_DURATION_MS 2000
 
-uint8_t prev_mode = 255;
-uint8_t current_mode = 0;
+static DisplayMode_t current_mode = DISPLAY_MODE_IDLE;
+static DisplayMode_t prev_mode = 255;
+static DisplayMode_t display_mode = DISPLAY_MODE_IDLE;
+static uint32_t last_mode_change = 0;
 
-extern uint8_t local_mode;
-extern uint8_t remote_mode;
+static LEDStatus_t local_status = LED_STATUS_OFF;
+static LEDStatus_t remote_status = LED_STATUS_OFF;
+static uint8_t led_status_changed = 0;
 
-void UpdateDisplay(void)
+static void UpdateModeDisplay(void);
+static void UpdateLEDDisplay(void);
+static const char* GetLEDStatusString(LEDStatus_t local, LEDStatus_t remote);
+
+void LCDApplication_Init(void)
 {
-    static uint32_t last_mode_change = 0;
-    static uint8_t display_mode = 0;  // Separate variable for display
+    LCD_Init();
+
+    LCD_Driver_SetCursor(0, 0);
+    LCD_Driver_Print("Mode: IDLE      ");
+    LCD_Driver_SetCursor(1, 0);
+    LCD_Driver_Print("LED: OFF        ");
+
+    current_mode = DISPLAY_MODE_IDLE;
+    prev_mode = DISPLAY_MODE_IDLE;
+    display_mode = DISPLAY_MODE_IDLE;
+    last_mode_change = 0;
+    led_status_changed = 1;
+}
+
+void LCDApplication_UpdateMode(DisplayMode_t mode)
+{
+    current_mode = mode;
+}
+
+void LCDApplication_UpdateLEDStatus(LEDStatus_t local, LEDStatus_t remote)
+{
+    if (local_status != local || remote_status != remote)
+    {
+        local_status = local;
+        remote_status = remote;
+        led_status_changed = 1;
+    }
+}
+
+void LCDApplication_Process(void)
+{
+    UpdateModeDisplay();
+
+    if (led_status_changed)
+    {
+        UpdateLEDDisplay();
+        led_status_changed = 0;
+    }
+}
+
+static void UpdateModeDisplay(void)
+{
 
     if (current_mode != prev_mode)
     {
-        LCD_SetCursor(0, 0);
+        LCD_Driver_SetCursor(0, 0);
+
         switch (current_mode)
         {
-            case 3:
-                LCD_Print("Mode: HOLD      ");
-                display_mode = 3;
+            case DISPLAY_MODE_HOLD:
+                LCD_Driver_Print("Mode: HOLD      ");
+                display_mode = DISPLAY_MODE_HOLD;
                 break;
-            case 2:
-                LCD_Print("Mode: DOUBLE    ");
-                display_mode = 2;
+
+            case DISPLAY_MODE_DOUBLE:
+                LCD_Driver_Print("Mode: DOUBLE    ");
+                display_mode = DISPLAY_MODE_DOUBLE;
                 last_mode_change = HAL_GetTick();
                 break;
-            case 1:
-                LCD_Print("Mode: SINGLE    ");
-                display_mode = 1;
-                last_mode_change = HAL_GetTick();
-                break;
-            case 0:
-                // Only update to IDLE if not in a temporary display state
-                if (display_mode == 0 || display_mode == 3)
-                {
-                    LCD_Print("Mode: IDLE      ");
-                    display_mode = 0;
-                }
-                break;
-            default:
-                LCD_Print("Mode: IDLE      ");
-                display_mode = 0;
-                break;
-        }
-        prev_mode = current_mode;
-    }
+            case DISPLAY_MODE_SINGLE:
+                           LCD_Driver_Print("Mode: SINGLE    ");
+                           display_mode = DISPLAY_MODE_SINGLE;
+                           last_mode_change = HAL_GetTick();
+                           break;
 
-    // Auto-clear temporary mode display after 2 seconds
-    if ((display_mode == 1 || display_mode == 2) &&
-        (HAL_GetTick() - last_mode_change >= 2000))
-    {
-        LCD_SetCursor(0, 0);
-        LCD_Print("Mode: IDLE      ");
-        display_mode = 0;
-    }
+                       case DISPLAY_MODE_IDLE:
+                           // Only update to IDLE if not in a temporary display state
+                           if (display_mode == DISPLAY_MODE_IDLE || display_mode == DISPLAY_MODE_HOLD)
+                           {
+                               LCD_Driver_Print("Mode: IDLE      ");
+                               display_mode = DISPLAY_MODE_IDLE;
+                           }
+                           break;
 
-    // Update LED status on second line
+                       default:
+                           LCD_Driver_Print("Mode: IDLE      ");
+                           display_mode = DISPLAY_MODE_IDLE;
+                           break;
+                   }
+
+                   prev_mode = current_mode;
+    }
+    if ((display_mode == DISPLAY_MODE_SINGLE || display_mode == DISPLAY_MODE_DOUBLE) &&
+           (HAL_GetTick() - last_mode_change >= TEMP_DISPLAY_DURATION_MS))
+       {
+           LCD_Driver_SetCursor(0, 0);
+           LCD_Driver_Print("Mode: IDLE      ");
+           display_mode = DISPLAY_MODE_IDLE;
+       }
+   }
+
+static void UpdateLEDDisplay(void)
+{
     char buffer[20];
-    LCD_SetCursor(1, 0);
+    LCD_Driver_SetCursor(1, 0);
 
-    if (local_mode == 0 && remote_mode == 0)
-    {
-        snprintf(buffer, sizeof(buffer), "LED: OFF        ");
-    }
-    else if (local_mode == 3 || remote_mode == 3)
-    {
-        snprintf(buffer, sizeof(buffer), "LED: ON (HOLD)  ");
-    }
-    else if (local_mode == 1 || remote_mode == 1)
-    {
-        snprintf(buffer, sizeof(buffer), "LED: FAST BLINK ");
-    }
-    else if (local_mode == 2 || remote_mode == 2)
-    {
-        snprintf(buffer, sizeof(buffer), "LED: SLOW BLINK ");
-    }
-
-    LCD_Print(buffer);
+    const char* status_str = GetLEDStatusString(local_status, remote_status);
+    snprintf(buffer, sizeof(buffer), "LED: %-11s", status_str);
+    LCD_Driver_Print(buffer);
 }
+static const char* GetLEDStatusString(LEDStatus_t local, LEDStatus_t remote)
+{
+    if (local == LED_STATUS_OFF && remote == LED_STATUS_OFF)
+    {
+        return "OFF";
+    }
+    else if (local == LED_STATUS_HOLD || remote == LED_STATUS_HOLD)
+    {
+        return "ON (HOLD)";
+    }
+    else if (local == LED_STATUS_FAST_BLINK || remote == LED_STATUS_FAST_BLINK)
+    {
+        return "FAST BLINK";
+    }
+    else if (local == LED_STATUS_SLOW_BLINK || remote == LED_STATUS_SLOW_BLINK)
+    {
+        return "SLOW BLINK";
+    }
 
-
+    return "OFF";
+}

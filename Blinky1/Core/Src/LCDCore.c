@@ -1,6 +1,27 @@
 #include "LCDCore.h"
+#include "LCD.h"
+void LCD_Init(void)
+{
+	HAL_Delay(50);
+	LCD_Command(0x33);
+	HAL_Delay(5);
+	LCD_Command(0x32);
+	HAL_Delay(5);
+	LCD_Command(0x28);
+	LCD_Command(0x0C);
+	LCD_Command(0x06);
+	LCD_Command(0x01);
+	HAL_Delay(5);
+}
 
-void LCD_SetCursor(uint8_t row, uint8_t col)
+void LCD_Driver_Command(uint8_t cmd)
+{
+	LCD_Command(cmd);
+}
+void LCD_Driver_Data(uint8_t data){
+	  LCD_Data(data);
+}
+void LCD_Driver_SetCursor(uint8_t row, uint8_t col)
 {
     uint8_t addr;
     if (row == 0)
@@ -11,27 +32,14 @@ void LCD_SetCursor(uint8_t row, uint8_t col)
     LCD_Command(addr);
 }
 
-void LCD_Print(char *str)
+void LCD_Driver_Print(const char *str)
 {
     while (*str)
         LCD_Data(*str++);
 }
 
-void LCD_Init(void)
+void LCD_Driver_Clear(void)
 {
-    HAL_Delay(50);
-    LCD_Command(0x33);
-    HAL_Delay(5);
-    LCD_Command(0x32);
-    HAL_Delay(5);
-    LCD_Command(0x28);   /* 4-bit, 2 line, 5x8 dots */
-    LCD_Command(0x0C);   /* Display ON, Cursor OFF */
-    LCD_Command(0x06);   /* Entry mode: increment cursor */
-    LCD_Command(0x01);   /* Clear display */
-    HAL_Delay(5);
-
-	LCD_SetCursor(0, 0);
-	LCD_Print("Mode: IDLE      ");
-	LCD_SetCursor(1, 0);
-	LCD_Print("LED: OFF        ");
+    LCD_Command(0x01);
+    HAL_Delay(2);
 }
