@@ -3,6 +3,14 @@
 #include <stdio.h>
 #define TEMP_DISPLAY_DURATION_MS 1000
 
+typedef enum {
+    LCD_INIT_RESET,      // Screen just cleared
+    LCD_INIT_LABELS,     // Need to print "L-MODE:", "R-LED:", etc.
+    LCD_INIT_READY       // Labels are done, start updating values
+} LCD_InitState_t;
+
+static LCD_InitState_t init_state = LCD_INIT_RESET;
+
 static DisplayMode_t local_mode = DISPLAY_MODE_IDLE;
 static DisplayMode_t local_prev_mode = 255;
 static uint32_t local_last_mode_change = 0;
@@ -31,8 +39,8 @@ void LCD_UpdateRemoteLED(LEDStatus_t status);
 #define ROW_REMOTE_LED   3
 
 
-#define COL_MODE_VALUE   8   // after "L-MODE: "
-#define COL_LED_VALUE    8   // after "L-LED: "
+#define COL_MODE_VALUE   8
+#define COL_LED_VALUE    8
 
 void LCD_UpdateLocalMode(DisplayMode_t mode)
 {
@@ -76,16 +84,7 @@ void LCDApplication_Init(void)
 		LCD_Init();
 
 	    LCD_Driver_Clear();
-
-	    LCD_Driver_SetCursor(ROW_LOCAL_MODE, 0);
-	    LCD_Driver_Print("L-MODE: ");
-	    LCD_Driver_SetCursor(ROW_LOCAL_LED, 0);
-	    LCD_Driver_Print("L-LED : ");
-
-	    LCD_Driver_SetCursor(ROW_REMOTE_MODE, 0);
-	    LCD_Driver_Print("R-MODE: ");
-	    LCD_Driver_SetCursor(ROW_REMOTE_LED, 0);
-	    LCD_Driver_Print("R-LED : ");
+	    init_state = LCD_INIT_RESET;
 	    local_prev_mode = remote_prev_mode = 255;
 	    local_prev_led_status = remote_prev_led_status = 255;
 }
@@ -94,7 +93,19 @@ void LCDApplication_Init(void)
 void LCDApplication_Process(void)
 {
 
-	 if ((local_mode == DISPLAY_MODE_SINGLE || local_mode == DISPLAY_MODE_DOUBLE) &&
+	    if (init_state == LCD_INIT_RESET)
+	    {
+
+	        LCD_Driver_SetCursor(ROW_LOCAL_MODE, 0);  LCD_Driver_Print("L-MODE: ");
+	        LCD_Driver_SetCursor(ROW_LOCAL_LED, 0);   LCD_Driver_Print("L-LED : ");
+	        LCD_Driver_SetCursor(ROW_REMOTE_MODE, 0); LCD_Driver_Print("R-MODE: ");
+	        LCD_Driver_SetCursor(ROW_REMOTE_LED, 0);  LCD_Driver_Print("R-LED : ");
+
+	        init_state = LCD_INIT_READY;
+	        return;
+	    }
+
+	    if ((local_mode == DISPLAY_MODE_SINGLE || local_mode == DISPLAY_MODE_DOUBLE) &&
 	        (HAL_GetTick() - local_last_mode_change >= TEMP_DISPLAY_DURATION_MS))
 	    {
 	        local_mode = DISPLAY_MODE_IDLE;
