@@ -3,8 +3,7 @@
 
 ButtonApplicationTypedefStruct ButtonData;
 
-void UpdateButton(void)
-{
+void UpdateButton(void) {
 	ButtonCore_Update();
 	BUTTON_EVENT_TYPEDEF_ENUM ev = GetEvent();
 
@@ -15,7 +14,7 @@ void UpdateButton(void)
 	ButtonData.PreviousEvent = ButtonData.CurrentEvent;
 	ButtonData.NewEventReceived = true;
 
-	switch(ev){
+	switch (ev) {
 	case BUTTON_EVENT_SINGLE_CLICK:
 		ButtonData.CurrentEvent = EVT_SINGLE_CLICK;
 		break;

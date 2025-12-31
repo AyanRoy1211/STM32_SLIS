@@ -16,9 +16,20 @@ typedef enum {
     LED_STATUS_HOLD = 3
 } LEDStatus_t;
 
+
 void LCDApplication_Init(void);
-void LCDApplication_UpdateMode(DisplayMode_t mode);
-void LCDApplication_UpdateLEDStatus(LEDStatus_t local_status, LEDStatus_t remote_status);
+
+
+void LCDApplication_UpdateLocalMode(DisplayMode_t mode);
+void LCDApplication_UpdateLocalLED(LEDStatus_t status);
+void LCD_UpdateLocalMode(DisplayMode_t mode);
+void LCD_UpdateLocalLED(LEDStatus_t status);
+void LCDApplication_UpdateRemoteMode(DisplayMode_t mode);
+void LCDApplication_UpdateRemoteLED(LEDStatus_t status);
+void LCD_UpdateRemoteMode(DisplayMode_t mode);
+void LCD_UpdateRemoteLED(LEDStatus_t status);
+
 void LCDApplication_Process(void);
+
 
 #endif
