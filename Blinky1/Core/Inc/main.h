@@ -28,7 +28,6 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
-#include "stm32f0xx_hal_uart.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -62,8 +61,6 @@ void Error_Handler(void);
 #define Button_GPIO_Port GPIOA
 #define RS_Pin GPIO_PIN_1
 #define RS_GPIO_Port GPIOA
-#define E_Pin GPIO_PIN_2
-#define E_GPIO_Port GPIOA
 #define DB4_Pin GPIO_PIN_3
 #define DB4_GPIO_Port GPIOA
 #define DB5_Pin GPIO_PIN_4
@@ -72,6 +69,8 @@ void Error_Handler(void);
 #define DB6_GPIO_Port GPIOA
 #define DB7_Pin GPIO_PIN_6
 #define DB7_GPIO_Port GPIOA
+#define E_Pin GPIO_PIN_7
+#define E_GPIO_Port GPIOA
 #define LD4_Pin GPIO_PIN_8
 #define LD4_GPIO_Port GPIOC
 #define LD3_Pin GPIO_PIN_9
@@ -80,6 +79,12 @@ void Error_Handler(void);
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
 #define SWCLK_GPIO_Port GPIOA
+#define STEP_Pin GPIO_PIN_4
+#define STEP_GPIO_Port GPIOB
+#define DIR_Pin GPIO_PIN_6
+#define DIR_GPIO_Port GPIOB
+#define ENN_Pin GPIO_PIN_7
+#define ENN_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

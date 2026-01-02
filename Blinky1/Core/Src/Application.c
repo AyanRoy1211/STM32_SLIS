@@ -5,6 +5,7 @@
 #include "UART_Application.h"
 #include "LCDCore.h"
 #include "LED_Controller.h"
+#include "TMC2208_UART_Application.h"
 
 extern UARTApplicationTypedefStruct UartData;
 extern ButtonApplicationTypedefStruct ButtonData;
@@ -18,8 +19,9 @@ void HandleTick(void) {
 
 void ApplicationInit() {
 	LED_Init();
-	LCD_Init();
-	UART_AppInit();
+	//LCD_Init();
+	//UART_AppInit();
+	TMC2208_ApplicationInit();
 }
 
 void ApplicationProcess() {
