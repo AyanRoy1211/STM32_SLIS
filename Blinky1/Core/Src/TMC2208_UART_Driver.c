@@ -8,6 +8,7 @@ uint32_t tmc_last_read_addr = 0;
 uint32_t tmc_last_read_value = 0xDEADBEEF;
 uint8_t tmc_read_success = 0;
 uint8_t tmc_read_failed = 0;
+uint8_t frame[8];
 
 // CRC-8 lookup table (CRC-ATM: poly=0x07, init=0x00, xor_out=0x00)
 static const uint8_t crc8_table[256] = {
@@ -61,166 +62,139 @@ uint8_t CalcCRC(const uint8_t *data, uint32_t length)
 
 HAL_StatusTypeDef TMC2208_WriteReg(uint8_t address, uint32_t value)
 {
-    uint8_t frame[8];
 
-    frame[0] = 0x05;                  // Sync nibble
-    frame[1] = 0x00;                  // Node 0, write (R/W = 0)
-    frame[2] = address;               // Register address
-    frame[3] = (uint8_t)(value);      // Data byte 0 (LSB)
-    frame[4] = (uint8_t)(value >> 8); // Data byte 1
-    frame[5] = (uint8_t)(value >> 16); // Data byte 2
-    frame[6] = (uint8_t)(value >> 24); // Data byte 3 (MSB)
-
-    // Calculate CRC over bytes 0-6
+    frame[0] = 0x05;                      // Sync
+    frame[1] = 0x00;                      // Node 0, write
+    frame[2] = address;                   // Register address
+    frame[3] = (uint8_t)(value);          // LSB
+    frame[4] = (uint8_t)(value >> 8);
+    frame[5] = (uint8_t)(value >> 16);
+    frame[6] = (uint8_t)(value >> 24);    // MSB
     frame[7] = CalcCRC(frame, 7);
 
-    // Track the write
-        tmc_last_write_addr = address;
-        tmc_last_write_value = value;
+    tmc_last_write_addr = address;
+    tmc_last_write_value = value;
 
-    // Send via USART2 (half-duplex, TX only)
+    // Send via USART2 (no HalfDuplex enable needed)
     HAL_StatusTypeDef status = HAL_UART_Transmit(&huart2, frame, 8, 100);
+
     // Small delay for driver to process
     HAL_Delay(2);
 
     return status;
 }
 
-HAL_StatusTypeDef TMC2208_ReadReg(uint8_t address)
-{
-    uint8_t tx_frame[8];
-    uint8_t rx_frame[8];
-    uint8_t frame[8];
+HAL_StatusTypeDef TMC2208_ReadReg(uint8_t address) {
+    uint8_t txframe[8];
+    uint8_t rxframe[8];
 
-    frame[0] = 0x05;           // Sync
-    frame[1] = 0x80;           // Node 0, read (R/W = 1)
-    frame[2] = address;        // Register address
-    frame[3] = 0x00;
-    frame[4] = 0x00;
-    frame[5] = 0x00;
-    frame[6] = 0x00;
+    // Build read request frame
+    txframe[0] = 0x05;     // Sync
+    txframe[1] = 0x00;     // Slave address 0, read bit
+    txframe[2] = address;  // Register address
+    txframe[3] = 0x00;
+    txframe[4] = 0x00;
+    txframe[5] = 0x00;
+    txframe[6] = 0x00;
+    txframe[7] = CalcCRC(txframe, 7);
 
-    frame[7] = CalcCRC(frame, 7);
+    // Clear any residual data in RX buffer
+    __HAL_UART_FLUSH_DRREGISTER(&huart2);
+    __HAL_UART_CLEAR_FLAG(&huart2, UART_CLEAR_OREF | UART_CLEAR_FEF | UART_CLEAR_NEF);
 
     // Send read request
-    HAL_StatusTypeDef tx_status = HAL_UART_Transmit(&huart2, tx_frame, 8, 100);
-    if (tx_status != HAL_OK)
-    {
+    HAL_StatusTypeDef txstatus = HAL_UART_Transmit(&huart2, txframe, 8, 100);
+    if (txstatus != HAL_OK) {
         tmc_read_failed++;
         tmc_last_read_value = 0xFAFA0001;
-        return tx_status;
+        return txstatus;
     }
 
-//    HAL_Delay(10);
+    // Wait for TMC2208 to prepare response
+    HAL_Delay(20);
 
     // Receive response
-    HAL_StatusTypeDef rx_status = HAL_UART_Receive(&huart2, rx_frame, 8, 100);
-    if (rx_status != HAL_OK)
-    {
+    HAL_StatusTypeDef rxstatus = HAL_UART_Receive(&huart2, rxframe, 8, 500);
+    if (rxstatus != HAL_OK) {
         tmc_read_failed++;
         tmc_last_read_value = 0xDEADC0DE;
-        return rx_status;
+        return rxstatus;
     }
 
     // Validate sync byte
-    if (rx_frame[0] != 0x05)
-    {
+    if (rxframe[0] != 0x05) {
         tmc_read_failed++;
         tmc_last_read_value = 0xBADC0FFE;
         return HAL_ERROR;
     }
 
     // Validate CRC
-    uint8_t calc_crc = CalcCRC(rx_frame, 7);
-    if (calc_crc != rx_frame[7])
-    {
+    uint8_t calc_crc = CalcCRC(rxframe, 7);
+    if (calc_crc != rxframe[7]) {
         tmc_read_failed++;
         tmc_last_read_value = 0xC0DEDBAD;
         return HAL_ERROR;
     }
 
-    // Extract and track the register value
+    // Extract register value - SUCCESS!
     tmc_last_read_addr = address;
-    tmc_last_read_value = (rx_frame[6] << 24) | (rx_frame[5] << 16) |
-                          (rx_frame[4] << 8) | rx_frame[3];
+    tmc_last_read_value = (rxframe[6] << 24) | (rxframe[5] << 16) |
+                          (rxframe[4] << 8) | rxframe[3];
     tmc_read_success++;
 
     return HAL_OK;
 }
 
-void TMC2208_ConfigureBasic(uint16_t irun_ihold, uint8_t microsteps)
-{
-    // Register addresses (from TMC2208 datasheet)
-    #define GCONF_ADDR      0x00
-    #define IHOLD_IRUN_ADDR 0x10
-    #define CHOPCONF_ADDR   0x6C
-    #define PWMCONF_ADDR    0x70
+uint8_t TMC2208_TestConnection(void) {
+    uint8_t txframe[8];
+    uint8_t rxframe[8];
 
-    // 1. Set GCONF: internalRsense=1, pdndisable=1
-    uint32_t gconf = (1 << 1) | (1 << 6);  // 0x42
-    TMC2208_WriteReg(GCONF_ADDR, gconf);
+    // Build GCONF read request
+    txframe[0] = 0x05;
+    txframe[1] = 0x00;
+    txframe[2] = 0x00;  // GCONF address
+    txframe[3] = 0x00;
+    txframe[4] = 0x00;
+    txframe[5] = 0x00;
+    txframe[6] = 0x00;
+    txframe[7] = CalcCRC(txframe, 7);
 
-    // 2. Set IHOLD_IRUN
-    TMC2208_WriteReg(IHOLD_IRUN_ADDR, irun_ihold);
-
-    // 3. Set CHOPCONF: intpol=1 at bit 4
-    uint32_t chopconf = (1 << 4);
-    TMC2208_WriteReg(CHOPCONF_ADDR, chopconf);
-}
-
-uint8_t TMC2208_TestConnection(void)
-{
-    uint8_t tx_frame[8];
-    uint8_t rx_frame[8];
-
-    // Build a read request for GCONF (register 0x00)
-    tx_frame[0] = 0x05;           // Sync
-    tx_frame[1] = 0x80;           // Read request (R/W = 1)
-    tx_frame[2] = 0x00;           // GCONF address
-    tx_frame[3] = 0x00;
-    tx_frame[4] = 0x00;
-    tx_frame[5] = 0x00;
-    tx_frame[6] = 0x00;
-    tx_frame[7] = CalcCRC(tx_frame, 7);
+    // Clear RX buffer
+    __HAL_UART_FLUSH_DRREGISTER(&huart2);
+    __HAL_UART_CLEAR_FLAG(&huart2, UART_CLEAR_OREF | UART_CLEAR_FEF | UART_CLEAR_NEF);
 
     // Send test frame
-    HAL_StatusTypeDef tx_status = HAL_UART_Transmit(&huart2, tx_frame, 8, 100);
-    if (tx_status != HAL_OK)
-    {
-    	tmc_read_failed++;
-        return 0;  // TX failed
+    HAL_StatusTypeDef txstatus = HAL_UART_Transmit(&huart2, txframe, 8, 100);
+    if (txstatus != HAL_OK) {
+        tmc_read_failed++;
+        return 0;
     }
 
-    // Wait for driver to respond
-    HAL_Delay(10);
+    HAL_Delay(20);
 
     // Receive response
-    HAL_StatusTypeDef rx_status = HAL_UART_Receive(&huart2, rx_frame, 8, 100);
-    if (rx_status != HAL_OK)
-    {
-    	tmc_read_failed++;
-        return 0;  // RX failed
+    HAL_StatusTypeDef rxstatus = HAL_UART_Receive(&huart2, rxframe, 8, 500);
+    if (rxstatus != HAL_OK) {
+        tmc_read_failed++;
+        return 0;
     }
 
-    // Validate response
-    // Check sync byte
-    if (rx_frame[0] != 0x05)
-    {
-    	tmc_read_failed++;
-        return 0;  // Invalid sync
+    // Validate sync
+    if (rxframe[0] != 0x05) {
+        tmc_read_failed++;
+        return 0;
     }
 
     // Verify CRC
-    uint8_t calculated_crc = CalcCRC(rx_frame, 7);
-    if (calculated_crc != rx_frame[7])
-    {
-    	tmc_read_failed++;
-        return 0;  // CRC mismatch
+    uint8_t calculated_crc = CalcCRC(rxframe, 7);
+    if (calculated_crc != rxframe[7]) {
+        tmc_read_failed++;
+        return 0;
     }
 
     tmc_read_success++;
-    tmc_last_read_value = (rx_frame[6] << 24) | (rx_frame[5] << 16) |
-                          (rx_frame[4] << 8) | rx_frame[3];
-    // If we got here, communication successful
+    tmc_last_read_value = (rxframe[6] << 24) | (rxframe[5] << 16) |
+                          (rxframe[4] << 8) | rxframe[3];
+
     return 1;
 }

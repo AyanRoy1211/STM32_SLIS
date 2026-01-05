@@ -61,8 +61,6 @@ void Error_Handler(void);
 #define Button_GPIO_Port GPIOA
 #define RS_Pin GPIO_PIN_1
 #define RS_GPIO_Port GPIOA
-#define DB4_Pin GPIO_PIN_3
-#define DB4_GPIO_Port GPIOA
 #define DB5_Pin GPIO_PIN_4
 #define DB5_GPIO_Port GPIOA
 #define DB6_Pin GPIO_PIN_5
@@ -75,6 +73,8 @@ void Error_Handler(void);
 #define LD4_GPIO_Port GPIOC
 #define LD3_Pin GPIO_PIN_9
 #define LD3_GPIO_Port GPIOC
+#define DB4_Pin GPIO_PIN_8
+#define DB4_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14

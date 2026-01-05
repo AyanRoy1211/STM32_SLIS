@@ -51,8 +51,8 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, RS_Pin|DB4_Pin|DB5_Pin|DB6_Pin
-                          |DB7_Pin|E_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, RS_Pin|DB5_Pin|DB6_Pin|DB7_Pin
+                          |E_Pin|DB4_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LD4_Pin|LD3_Pin, GPIO_PIN_RESET);
@@ -66,13 +66,13 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin : Button_Pin */
   GPIO_InitStruct.Pin = Button_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(Button_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : RS_Pin DB4_Pin DB5_Pin DB6_Pin
-                           DB7_Pin E_Pin */
-  GPIO_InitStruct.Pin = RS_Pin|DB4_Pin|DB5_Pin|DB6_Pin
-                          |DB7_Pin|E_Pin;
+  /*Configure GPIO pins : RS_Pin DB5_Pin DB6_Pin DB7_Pin
+                           E_Pin DB4_Pin */
+  GPIO_InitStruct.Pin = RS_Pin|DB5_Pin|DB6_Pin|DB7_Pin
+                          |E_Pin|DB4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
