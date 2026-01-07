@@ -15,7 +15,13 @@
 /* USER CODE BEGIN Includes */
 #include "Application.h"
 #include "UART_Application.h"
-#include "TMC2208_UART_Application.h"
+#include "ButtonCore.h"
+#include "LED_Controller.h"
+#include<stdio.h>
+#include "TMC2208_UART_Driver.h"
+#include "TMC2208_Core.h"
+#include "TMC2208_Test.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,16 +42,27 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+//Button_t userButton;
+uint32_t success_count = 0;
+uint32_t error_count = 0;
+uint8_t  connection_state = 0;
+uint32_t sent_value = 0;
+uint32_t read_back_value = 0;
+uint32_t match_count = 0;
+extern UART_HandleTypeDef huart2;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void Test_BasicPinReading(void);
+void Test_ActualIOIN(void);
+void RunAllTests(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -64,7 +81,8 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+
+	HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -83,17 +101,67 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   ApplicationInit();
-  HAL_Delay(100);
+  RunAllTests();
+  //ButtonCore_Init(&userButton, Button_GPIO_Port, Button_Pin);
+
   /* USER CODE END 2 */
-  TMC2208_RunTest();
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+	        if (TMC2208_ReadReg(0x00, &read_back_value))
+	        {
+
+
+	            connection_state = 1;
+	            success_count++;
+
+
+	        }
+	        else {
+
+	            connection_state = 0;
+	            error_count++;
+
+
+	        }
+	        sent_value = 0x00061F0A;
+
+	              TMC2208_WriteReg( 0x10, sent_value);
+
+	             HAL_Delay(100);
+
+	              if (TMC2208_ReadReg(0x10, &read_back_value)) {
+
+	                  if (read_back_value == sent_value) {
+	                      match_count++;
+	                  }
+	              }
+
+	             HAL_Delay(500);
+	              sent_value = 0x00060505;
+	                    TMC2208_WriteReg(0x10, sent_value);
+
+	                    HAL_Delay(100);
+
+
+	                    if (TMC2208_ReadReg(0x10, &read_back_value)) {
+
+	                        if (read_back_value == sent_value) {
+	                            match_count++;
+	                        }
+	                    }
+                    HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  ApplicationProcess();
+
+//*TODO*
+	  //ApplicationProcess();
+	  //ButtonCore_Update(&userButton);
+	  //LCDApplication_Process();
   }
   /* USER CODE END 3 */
 }
@@ -157,6 +225,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         UART_OnByteReceived();
     }
 }
+
 /* USER CODE END 4 */
 
 /**

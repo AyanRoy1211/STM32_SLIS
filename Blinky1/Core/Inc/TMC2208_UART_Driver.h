@@ -25,9 +25,9 @@ void TMC2208_UART_Init(void);
 uint8_t CalcCRC(const uint8_t *data,uint32_t length);
 
 // Write a 32-bit register value
-HAL_StatusTypeDef TMC2208_WriteReg(uint8_t address, uint32_t value);
+void TMC2208_WriteReg(uint8_t address, uint32_t value);
 // Read a register(sends request,returns value)
-HAL_StatusTypeDef TMC2208_ReadReg(uint8_t address);
+bool TMC2208_ReadReg(uint8_t address, uint32_t *read_value);
 
 void TMC2208_ConfigureBasic(uint16_t irun_ihold, uint8_t microsteps);
 

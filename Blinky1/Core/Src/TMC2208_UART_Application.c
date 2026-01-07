@@ -6,18 +6,18 @@ void TMC2208_ApplicationInit(void)
     TMC2208_UART_Init();
 }
 
-void TMC2208_RunTest(void)
-{
-    // Write test values to registers
-    TMC2208_WriteReg(0x10, 0x00000505);  // IHOLD_IRUN
-    TMC2208_ReadReg(0x10);               // Read it back
-
-    TMC2208_WriteReg(0x00, 0x00000042);  // GCONF
-    TMC2208_ReadReg(0x00);               // Read it back
-
-    // Breakpoint here to inspect variables
-    __asm("NOP");  // NOP for easy breakpoint
-}
+//void TMC2208_RunTest(void)
+//{
+//    // Write test values to registers
+//    TMC2208_WriteReg(0x10, 0x00000505);  // IHOLD_IRUN
+//    TMC2208_ReadReg(0x10);               // Read it back
+//
+//    TMC2208_WriteReg(0x00, 0x00000042);  // GCONF
+//    TMC2208_ReadReg(0x00);               // Read it back
+//
+//    // Breakpoint here to inspect variables
+//    __asm("NOP");  // NOP for easy breakpoint
+//}
 
 void TMC2208_ConfigureMotor(float irun_amps, float ihold_amps, uint8_t microsteps)
 {
