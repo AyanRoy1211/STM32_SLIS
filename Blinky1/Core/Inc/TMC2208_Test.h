@@ -2,6 +2,9 @@
 #define TMC2208_TEST_H_
 
 #include <stdint.h>
+#include "TMC2208_Core.h"
+#include "TMC2208_UART_Driver.h"
+#include "main.h"
 
 // Test function declarations
 void Test_BasicPinReading(void);

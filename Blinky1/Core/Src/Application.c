@@ -14,7 +14,7 @@ extern LED_Controller_t remote_ctrl;
 
 void HandleTick(void) {
 	UpdateButton();
-	//UpdateLED();
+	UpdateLED();
 }
 
 void ApplicationInit() {
