@@ -45,6 +45,7 @@
 uint32_t sent_value = 0;
 uint32_t read_back_value = 0;
 extern UART_HandleTypeDef huart2;
+TMC2208_IOIN_Pins_t Ioin;
 
 /* USER CODE END PV */
 
@@ -94,7 +95,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   ApplicationInit();
-//  RunAllTests();
+  RunAllTests();
 
   /* USER CODE END 2 */
 
@@ -105,15 +106,17 @@ int main(void)
 	  TMC2208_ReadReg(0x00, &read_back_value);
 
 
-	        sent_value = 0x00061F0A;
+	        sent_value = 0x00060505;
 
 	             TMC2208_WriteReg( 0x10, sent_value);
 	             HAL_Delay(100);
 	             TMC2208_ReadReg(0x10, &read_back_value);
 
+	        Ioin.enn = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_ENN);
+	        Ioin.ms2 = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_MS2);
+	        Ioin.ms1 = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_MS1);
     /* USER CODE BEGIN 3 */
 
-//*TODO*
 	  ApplicationProcess();
   }
   /* USER CODE END 3 */

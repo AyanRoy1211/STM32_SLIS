@@ -1,16 +1,5 @@
 #include "ButtonCore.h"
 
-typedef struct {
-	uint8_t btn_stable;
-	uint8_t btn_prev;
-	int32_t btn_debounce;
-	uint32_t btn_press_start;
-	uint32_t btn_release_start;
-	uint8_t btn_clicks;
-	uint8_t btn_hold;
-	uint32_t btn_click_timer;
-} ButtonStates_t;
-
 static BUTTON_EVENT_TYPEDEF_ENUM pending_event = BUTTON_EVENT_NONE;
 static ButtonStates_t button = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -28,8 +17,7 @@ static void Button_Debounce(uint8_t raw, uint32_t now) {
 
 void ButtonCore_Update(void) {
 	uint8_t btn_raw =
-			(HAL_GPIO_ReadPin(Button_GPIO_Port, Button_Pin) == GPIO_PIN_SET) ?
-					1 : 0;
+			(HAL_GPIO_ReadPin(Button_GPIO_Port, Button_Pin) == GPIO_PIN_SET) ? 1 : 0;
 	uint32_t now = HAL_GetTick();
 
 	Button_Debounce(btn_raw, now);

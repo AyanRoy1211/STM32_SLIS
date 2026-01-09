@@ -3,6 +3,17 @@
 
 #include "main.h"
 
+typedef struct {
+	uint8_t btn_stable;
+	uint8_t btn_prev;
+	int32_t btn_debounce;
+	uint32_t btn_press_start;
+	uint32_t btn_release_start;
+	uint8_t btn_clicks;
+	uint8_t btn_hold;
+	uint32_t btn_click_timer;
+} ButtonStates_t;
+
 typedef enum {
     BUTTON_EVENT_NONE = 0,
     BUTTON_EVENT_SINGLE_CLICK,

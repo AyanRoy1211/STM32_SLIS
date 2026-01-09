@@ -6,7 +6,6 @@
 typedef struct {
 	EVENT_CODES_ENUM PreviousEvent;
 	EVENT_CODES_ENUM CurrentEvent;
-
 	bool NewEventReceived;
 } UARTApplicationTypedefStruct;
 

@@ -20,7 +20,9 @@ uint8_t TMC2208_GCONF_ReadBit(uint32_t reg_value, TMC2208_GCONF_Bit_t bit) {
     return (reg_value & TMC2208_GCONF_MASK(bit)) ? 1 : 0;
 }
 
-uint8_t TMC2208_IOIN_ReadPin(uint32_t ioin_value, TMC2208_IOIN_Pin_t pin) {
+uint8_t TMC2208_IOIN_ReadPin(TMC2208_IOIN_Pin_t pin) {
+	uint32_t ioin_value = 0;
+	TMC2208_ReadReg(0x06, &ioin_value);
     return (uint8_t)((ioin_value >> pin) & 0x01);
 }
 
@@ -29,18 +31,18 @@ void TMC2208_IOIN_ParsePins(uint32_t ioin_value, TMC2208_IOIN_Pins_t *pins) {
         return;
     }
 
-    pins->enn = TMC2208_IOIN_ReadPin(ioin_value, TMC2208_IOIN_PIN_ENN);
-    pins->ms1 = TMC2208_IOIN_ReadPin(ioin_value, TMC2208_IOIN_PIN_MS1);
-    pins->ms2 = TMC2208_IOIN_ReadPin(ioin_value, TMC2208_IOIN_PIN_MS2);
-    pins->diag = TMC2208_IOIN_ReadPin(ioin_value, TMC2208_IOIN_PIN_DIAG);
-    pins->pdn_uart = TMC2208_IOIN_ReadPin(ioin_value, TMC2208_IOIN_PIN_PDN_UART);
-    pins->step = TMC2208_IOIN_ReadPin(ioin_value, TMC2208_IOIN_PIN_STEP);
-    pins->dir = TMC2208_IOIN_ReadPin(ioin_value, TMC2208_IOIN_PIN_DIR);
+    pins->enn = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_ENN);
+    pins->ms1 = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_MS1);
+    pins->ms2 = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_MS2);
+    pins->diag = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_DIAG);
+    pins->pdn_uart = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_PDN_UART);
+    pins->step = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_STEP);
+    pins->dir = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_DIR);
 }
 
 uint8_t TMC2208_IOIN_GetMicrostepSetting(uint32_t ioin_value) {
-    uint8_t ms1 = TMC2208_IOIN_ReadPin(ioin_value, TMC2208_IOIN_PIN_MS1);
-    uint8_t ms2 = TMC2208_IOIN_ReadPin(ioin_value, TMC2208_IOIN_PIN_MS2);
+    uint8_t ms1 = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_MS1);
+    uint8_t ms2 = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_MS2);
 
     return TMC2208_Helper_PinsToMicrosteps(ms1, ms2);
 }

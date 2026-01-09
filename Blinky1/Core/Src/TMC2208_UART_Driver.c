@@ -45,7 +45,6 @@ void TMC2208_WriteReg(uint8_t address, uint32_t value)
 bool TMC2208_ReadReg(uint8_t address, uint32_t *read_value)
 {
 
-    // Build read request frame
     txframe[0] = 0x05;     // Sync
     txframe[1] = 0x00;     // Slave address 0, read bit
     txframe[2] = address;  // Register address

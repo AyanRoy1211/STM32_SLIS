@@ -4,10 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "stddef.h"
-
-// ========================================================================
-// REGISTER MAP
-// ========================================================================
+#include "TMC2208_UART_Driver.h"
 
 typedef enum {
     TMC2208_REG_GCONF = 0x00,
@@ -28,9 +25,7 @@ typedef enum {
     TMC2208_REG_PWMAUTO = 0x72
 } TMC2208_Register_t;
 
-// ========================================================================
 // GCONF REGISTER (0x00)
-// ========================================================================
 
 typedef enum {
     TMC2208_GCONF_I_SCALE_ANALOG = 0,   // Bit 0: Use VREF for current scaling
@@ -45,9 +40,9 @@ typedef enum {
     TMC2208_GCONF_TEST_MODE = 9         // Bit 9: Enable test mode
 } TMC2208_GCONF_Bit_t;
 
-// ========================================================================
+#define TMC2208_GCONF_MASK(bit) (1UL << (bit))
+
 // IOIN REGISTER (0x06) - Read Only
-// ========================================================================
 
 typedef enum {
     TMC2208_IOIN_PIN_ENN = 0,       // Bit 0: Enable pin state
@@ -70,10 +65,6 @@ typedef struct {
     uint8_t dir;          // Direction input state
 } TMC2208_IOIN_Pins_t;
 
-// ========================================================================
-// IHOLD_IRUN REGISTER (0x10)
-// ========================================================================
-
 typedef enum {
     TMC2208_CURRENT_IHOLD = 0,      // Standstill current (bits 4:0)
     TMC2208_CURRENT_IRUN = 1,       // Run current (bits 12:8)
@@ -86,18 +77,6 @@ typedef struct {
     uint8_t iholddelay;     // Power down delay (0-15)
 } TMC2208_CurrentConfig_t;
 
-// ========================================================================
-// REGISTER BIT MASKS
-// ========================================================================
-
-// GCONF bit masks
-#define TMC2208_GCONF_MASK(bit) (1UL << (bit))
-
-// IOIN version field
-#define TMC2208_IOIN_VERSION_SHIFT  24
-#define TMC2208_IOIN_VERSION_MASK   (0xFFUL << TMC2208_IOIN_VERSION_SHIFT)
-
-// IHOLD_IRUN field masks
 #define TMC2208_IHOLD_MASK          0x0000001FUL
 #define TMC2208_IRUN_MASK           0x00001F00UL
 #define TMC2208_IHOLDDELAY_MASK     0x000F0000UL
@@ -105,9 +84,6 @@ typedef struct {
 #define TMC2208_IRUN_SHIFT          8
 #define TMC2208_IHOLDDELAY_SHIFT    16
 
-// ========================================================================
-// GCONF REGISTER FUNCTIONS
-// ========================================================================
 
 /**
  * @brief Set bit in GCONF register
@@ -142,9 +118,7 @@ uint32_t TMC2208_GCONF_WriteBit(uint32_t reg_value, TMC2208_GCONF_Bit_t bit, boo
  */
 uint8_t TMC2208_GCONF_ReadBit(uint32_t reg_value, TMC2208_GCONF_Bit_t bit);
 
-// ========================================================================
 // IOIN REGISTER FUNCTIONS
-// ========================================================================
 
 /**
  * @brief Read single pin from IOIN register
@@ -152,7 +126,7 @@ uint8_t TMC2208_GCONF_ReadBit(uint32_t reg_value, TMC2208_GCONF_Bit_t bit);
  * @param pin Pin to read (use TMC2208_IOIN_PIN_xxx enum)
  * @return Pin state (0 or 1)
  */
-uint8_t TMC2208_IOIN_ReadPin(uint32_t ioin_value, TMC2208_IOIN_Pin_t pin);
+uint8_t TMC2208_IOIN_ReadPin(TMC2208_IOIN_Pin_t pin);
 
 /**
  * @brief Parse IOIN register into pin structure
@@ -168,10 +142,7 @@ void TMC2208_IOIN_ParsePins(uint32_t ioin_value, TMC2208_IOIN_Pins_t *pins);
  */
 uint8_t TMC2208_IOIN_GetMicrostepSetting(uint32_t ioin_value);
 
-// ========================================================================
 // IHOLD_IRUN REGISTER FUNCTIONS
-// ========================================================================
-
 /**
  * @brief Build IHOLD_IRUN register from structure
  * @param config Pointer to current configuration
@@ -203,10 +174,6 @@ uint32_t TMC2208_Current_SetField(uint32_t reg_value, TMC2208_CurrentField_t fie
  */
 uint8_t TMC2208_Current_GetField(uint32_t reg_value, TMC2208_CurrentField_t field);
 
-// ========================================================================
-// HELPER FUNCTIONS
-// ========================================================================
-
 /**
  * @brief Convert microstep enum to actual step count
  * @param ms1 MS1 pin state
@@ -214,5 +181,6 @@ uint8_t TMC2208_Current_GetField(uint32_t reg_value, TMC2208_CurrentField_t fiel
  * @return Microstep count (2, 4, 8, or 16)
  */
 uint8_t TMC2208_Helper_PinsToMicrosteps(uint8_t ms1, uint8_t ms2);
+bool TMC2208_ReadReg(uint8_t address, uint32_t *read_value);
 
 #endif /* TMC2208_CORE_H_ */
