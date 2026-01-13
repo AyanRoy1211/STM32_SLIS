@@ -7,8 +7,7 @@ UARTApplicationTypedefStruct UartData;
 static uint8_t UartRxByte = 0;
 
 void UART_Receive() {
-	__HAL_UART_CLEAR_FLAG(&huart1,
-			UART_CLEAR_FEF | UART_CLEAR_NEF | UART_CLEAR_OREF);
+	__HAL_UART_CLEAR_FLAG(&huart1, UART_CLEAR_FEF | UART_CLEAR_NEF | UART_CLEAR_OREF);
 	HAL_UART_Receive_IT(&huart1, &UartRxByte, 1);
 }
 

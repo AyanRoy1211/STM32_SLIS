@@ -1,7 +1,7 @@
 #include "Motor_Controller.h"
 #include "gpio.h"
 
-MotorController_t motor_ctrl = {0,0,0};
+MotorController_t motor_control = {0,0,0};
 
 extern volatile uint32_t uwTick;
 
@@ -28,12 +28,12 @@ void Motor_Init(void)
 
 void Motor_Steps(uint32_t steps,uint32_t direction,uint32_t frequency)
 {
-	if(motor_ctrl.is_running)
+	if(motor_control.is_running)
 		return;
 
-	motor_ctrl.is_running = 1;
-	motor_ctrl.steps_target = steps;
-	motor_ctrl.steps_done = 0;
+	motor_control.is_running = 1;
+	motor_control.steps_target = steps;
+	motor_control.steps_done = 0;
 
 	// Set Direction
 	if(direction)
@@ -50,18 +50,18 @@ void Motor_Steps(uint32_t steps,uint32_t direction,uint32_t frequency)
 		HAL_GPIO_WritePin(STEP_GPIO_Port, STEP_Pin, GPIO_PIN_RESET);
 		delay_us(frequency);
 
-		motor_ctrl.steps_done++;
+		motor_control.steps_done++;
 	}
 	HAL_GPIO_WritePin(ENN_GPIO_Port, ENN_Pin, GPIO_PIN_SET);
 
-	motor_ctrl.is_running = 0;
+	motor_control.is_running = 0;
 }
 
 void Motor_Stop(void)
 {
 	HAL_GPIO_WritePin(ENN_GPIO_Port, ENN_Pin, GPIO_PIN_SET);
-	motor_ctrl.is_running = 0;
-	motor_ctrl.steps_done = 0;
+	motor_control.is_running = 0;
+	motor_control.steps_done = 0;
 }
 
 

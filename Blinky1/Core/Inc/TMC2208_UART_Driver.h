@@ -14,6 +14,7 @@ typedef struct{
 
 void TMC2208_UART_Init(void);
 
+bool TMC2208_SyncUART(UART_HandleTypeDef *huart);
 uint8_t CalcCRC(const uint8_t *data,uint32_t length);
 
 void TMC2208_WriteReg(uint8_t address, uint32_t value);

@@ -9,6 +9,30 @@ void TMC2208_UART_Init(void)
 
 }
 
+void UART_FlushRx(UART_HandleTypeDef *huart)
+{
+   volatile uint32_t tmp;
+   while (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE))
+   {
+       tmp = huart->Instance->RDR;
+       (void)tmp;
+   }
+}
+
+bool TMC2208_SyncUART(UART_HandleTypeDef *huart)
+{
+    if (huart == NULL)
+        return false;
+
+    uint32_t dummy;
+    UART_FlushRx(huart);
+    TMC2208_ReadReg(0x00, &dummy);
+    HAL_Delay(2);
+    UART_FlushRx(huart);
+
+    return true;
+}
+
 uint8_t CalcCRC(const uint8_t *datagram, uint32_t len)
 {
     crc = 0;
@@ -51,6 +75,9 @@ bool TMC2208_ReadReg(uint8_t address, uint32_t *read_value)
     txframe[3] = CalcCRC(txframe, 3);
 
     HAL_UART_AbortReceive_IT(&huart2);
+    memset(rxframe,0,sizeof(rxframe));
+
+
 
     HAL_StatusTypeDef rxstatus = HAL_UART_Receive_IT(&huart2, rxframe, 12);
     if(rxstatus != HAL_OK)
