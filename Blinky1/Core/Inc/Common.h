@@ -5,6 +5,7 @@
 #include "strings.h"
 
 typedef enum {
+	EVT_NONE = 0,
 	EVT_SINGLE_CLICK = 1,
 	EVT_DOUBLE_CLICK = 2,
 	EVT_HOLD_START = 3,
