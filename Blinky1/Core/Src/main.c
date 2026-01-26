@@ -17,11 +17,11 @@
 #include "UART_Application.h"
 #include "ButtonCore.h"
 #include "LED_Controller.h"
-#include<stdio.h>
+#include <stdio.h>
 #include "TMC2208_UART_Driver.h"
 #include "TMC2208_Core.h"
 #include "TMC2208_Test.h"
-
+#include "Motor_Application.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,7 +44,7 @@
 /* USER CODE BEGIN PV */
 uint32_t sent_value = 0;
 uint32_t read_back_value = 0;
-extern UART_HandleTypeDef huart2;
+//extern UART_HandleTypeDef huart2;
 TMC2208_IOIN_Pins_t Ioin;
 
 /* USER CODE END PV */
@@ -75,8 +75,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-
-	HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -92,10 +91,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   ApplicationInit();
-  RunAllTests();
+//  RunAllTests();
 
   /* USER CODE END 2 */
 
@@ -103,18 +101,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  TMC2208_ReadReg(0x00, &read_back_value);
+    /* USER CODE END WHILE */
 
-
-	        sent_value = 0x00060505;
-
-	             TMC2208_WriteReg( 0x10, sent_value);
-	             HAL_Delay(100);
-	             TMC2208_ReadReg(0x10, &read_back_value);
-
-	        Ioin.enn = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_ENN);
-	        Ioin.ms2 = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_MS2);
-	        Ioin.ms1 = TMC2208_IOIN_ReadPin(TMC2208_IOIN_PIN_MS1);
     /* USER CODE BEGIN 3 */
 
 	  ApplicationProcess();

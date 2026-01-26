@@ -1,67 +1,64 @@
 #include "Motor_Controller.h"
 #include "gpio.h"
+#include "core_cm0.h"
 
-MotorController_t motor_control = {0,0,0};
+MotorController_t motor_control = {0};
 
-extern volatile uint32_t uwTick;
-
-void delay_us(uint32_t us)
+void Delay_us(uint32_t us)
 {
-	uint32_t start = uwTick;
-	uint32_t delay_ms = (us + 999)/1000;
-
-	if(delay_ms == 0)
-		delay_ms = 1;
-
-	while((uwTick - start) < delay_ms){
-
+	uint32_t cycles = us*(SystemCoreClock / 1000000UL) / 4U ;
+	volatile uint32_t i;
+	for(i = 0; i< cycles; ++i)
+	{
+		__NOP();
 	}
 }
 
 void Motor_Init(void)
 {
-	HAL_GPIO_WritePin(ENN_GPIO_Port, ENN_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(ENN_GPIO_Port, ENN_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(STEP_GPIO_Port, STEP_Pin, GPIO_PIN_RESET);
 
+//	while (1)
+//	{
+//		HAL_GPIO_TogglePin(STEP_GPIO_Port, STEP_Pin);
+//		HAL_Delay(50);
+//	}
+
+	motor_control.running = 0;
+    motor_control.steps_remaining = 0;
+    motor_control.accumulator_us = 0;
+	motor_control.period_us = 0;
+	motor_control.direction = 0;
+
 }
 
-void Motor_Steps(uint32_t steps,uint32_t direction,uint32_t frequency)
+void Motor_Update(void)
 {
-	if(motor_control.is_running)
+	if(!motor_control.running)
 		return;
 
-	motor_control.is_running = 1;
-	motor_control.steps_target = steps;
-	motor_control.steps_done = 0;
+	motor_control.accumulator_us += 1000;
 
-	// Set Direction
-	if(direction)
-		HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET);
-	else
-		HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET);
-
-	HAL_GPIO_WritePin(ENN_GPIO_Port, ENN_Pin, GPIO_PIN_RESET);
-
-	for(uint32_t i = 0;i < steps;i++)
+	while(motor_control.accumulator_us >= motor_control.period_us && motor_control.running)
 	{
+		HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, (motor_control.direction ? GPIO_PIN_SET : GPIO_PIN_RESET));
+
 		HAL_GPIO_WritePin(STEP_GPIO_Port, STEP_Pin, GPIO_PIN_SET);
-		delay_us(frequency);
+		Delay_us(STEP_PULSE_WIDTH_US);
 		HAL_GPIO_WritePin(STEP_GPIO_Port, STEP_Pin, GPIO_PIN_RESET);
-		delay_us(frequency);
 
-		motor_control.steps_done++;
+		motor_control.accumulator_us -= motor_control.period_us;
+
+		if(motor_control.steps_remaining > 0)
+		{
+			motor_control.steps_remaining--;
+			if(motor_control.steps_remaining == 0)
+				motor_control.running = 0;
+
+		}
 	}
-	HAL_GPIO_WritePin(ENN_GPIO_Port, ENN_Pin, GPIO_PIN_SET);
-
-	motor_control.is_running = 0;
-}
-
-void Motor_Stop(void)
-{
-	HAL_GPIO_WritePin(ENN_GPIO_Port, ENN_Pin, GPIO_PIN_SET);
-	motor_control.is_running = 0;
-	motor_control.steps_done = 0;
 }
 
 

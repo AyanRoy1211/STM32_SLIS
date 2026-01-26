@@ -2,24 +2,25 @@
 #define INC_MOTOR_CONTROLLER_H_
 
 #include "stm32f0xx_hal.h"
+#include "stm32f0xx.h"
 
 typedef struct{
-	uint32_t steps_target;
-	uint32_t steps_done;
-	uint8_t is_running;
+	volatile uint8_t running;
+	uint32_t steps_remaining;
+	uint32_t period_us;
+	uint8_t direction;
+	uint32_t accumulator_us;
 } MotorController_t;
 
-extern MotorController_t motor_ctrl;
+#define STEP_PULSE_WIDTH_US 40
+extern MotorController_t motor_control;
 
-// Initialize Motor States
 void Motor_Init(void);
 
 //Delay Generator in microseconds
-void delay_us(uint32_t us);
+void Delay_us(uint32_t us);
 
 // Motor Functions
-void Motor_Steps(uint32_t steps,uint32_t direction,uint32_t frequency);
-void Motor_Stop(void);
-
+void Motor_Update(void);
 
 #endif /* INC_MOTOR_CONTROLLER_H_ */

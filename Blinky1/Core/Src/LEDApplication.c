@@ -1,8 +1,8 @@
 #include "LEDApplication.h"
 #include "LED_Controller.h"
 
-LED_Controller_t local_ctrl = { LED_MODE_IDLE, 0, 0, 25, 100, 1000 };  // LD3
-LED_Controller_t remote_ctrl = { LED_MODE_IDLE, 0, 0, 25, 100, 1000 };  // LD4
+LED_Controller_t local_ctrl = { LED_MODE_IDLE, 0, 0, 25, 100, 1000 };
+LED_Controller_t remote_ctrl = { LED_MODE_IDLE, 0, 0, 25, 100, 1000 };
 
 void LED_Init() {
 	HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
@@ -28,6 +28,8 @@ void SetRemoteMode(EVENT_CODES_ENUM event) {
 	case EVT_HOLD_END:
 		remote_ctrl.mode = LED_MODE_IDLE;
 		break;
+	case EVT_NONE:
+		break;
 	}
 }
 
@@ -44,6 +46,8 @@ void SetLocalMode(EVENT_CODES_ENUM event) {
 		break;
 	case EVT_HOLD_END:
 		local_ctrl.mode = LED_MODE_IDLE;
+		break;
+	case EVT_NONE:
 		break;
 	}
 }

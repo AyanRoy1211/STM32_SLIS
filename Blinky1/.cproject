@@ -71,8 +71,21 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.1279857387" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.447021966.572130663" name="TMC2208_UART_Driver.h" rcbsApplicability="disable" resourcePath="Core/Inc/TMC2208_UART_Driver.h" toolsToInvoke=""/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.447021966.737979521" name="UART_Application.h" rcbsApplicability="disable" resourcePath="Core/Inc/UART_Application.h" toolsToInvoke=""/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.447021966.796068673" name="TMC2208_Test.h" rcbsApplicability="disable" resourcePath="Core/Inc/TMC2208_Test.h" toolsToInvoke=""/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.447021966.1165279151" name="TMC2208_Core.h" rcbsApplicability="disable" resourcePath="Core/Inc/TMC2208_Core.h" toolsToInvoke=""/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.447021966.918659887" name="TMC2208_UART_Application.h" rcbsApplicability="disable" resourcePath="Core/Inc/TMC2208_UART_Application.h" toolsToInvoke="">
+						<tool announcement="Invoking: Resource Custom Build Step" customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.2091503608" name="Resource Custom Build Step">
+							<inputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.inputtype.650686998" name="Resource Custom Build Step Input Type">
+								<additionalInput kind="additionalinputdependency" paths=""/>
+							</inputType>
+							<outputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.outputtype.353299901" name="Resource Custom Build Step Output Type" outputNames=""/>
+						</tool>
+					</fileInfo>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.447021966.1469045134" name="Motor_Debug.h" rcbsApplicability="disable" resourcePath="Core/Inc/Motor_Debug.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
+						<entry excluding="Inc/TMC2208_Test.h|Inc/TMC2208_Core.h|Src/TMC2208_Test.c|Src/TMC2208_Core.c|Inc/TMC2208_UART_Application.h|Inc/Motor_Debug.h|Src/Motor_Debug.c|Src/TMC2208_UART_Driver.c|Src/TMC2208_UART_Application.c|Inc/TMC2208_UART_Driver.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 					</sourceEntries>
 				</configuration>
