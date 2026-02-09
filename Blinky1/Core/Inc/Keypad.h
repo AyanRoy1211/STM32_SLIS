@@ -50,9 +50,11 @@ typedef enum {
     KEY_AUTO,
     KEY_LIFT,
 
-    KEY_FACET,
+    KEY_FACET_LEFT,
+	KEY_FACET_RIGHT,
     KEY_START,
-    KEY_GRAIN
+    KEY_GRAIN_LEFT,
+	KEY_GRAIN_RIGHT
 } Keypad_Key_t;
 
 typedef enum {

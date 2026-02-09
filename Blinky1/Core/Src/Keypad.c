@@ -3,13 +3,13 @@
 
 static const Keypad_Key_t KEY_MAP[KEYPAD_ROWS][KEYPAD_COLS] = {
 
-		    { KEY_NONE,   KEY_START,  KEY_NONE,   KEY_NONE },
+		    { KEY_GRAIN_LEFT,   KEY_START,  KEY_DN,   KEY_ZEUT },
 
-		    { KEY_NONE,   KEY_NONE,   KEY_NONE,   KEY_NONE },
+		    { KEY_GRAIN_RIGHT,   KEY_AUTO,   KEY_UP,   KEY_NONE },
 
-		    { KEY_NONE,   KEY_CLR,    KEY_NONE,   KEY_NONE },
+		    { KEY_LEFT,   KEY_CLR,    KEY_WASS,   KEY_F2 },
 
-		    { KEY_NONE,   KEY_ENT,    KEY_NONE,   KEY_NONE },
+		    { KEY_MINUS,   KEY_ENT,    KEY_LIFT,   KEY_F1 },
 
 		    { KEY_NONE,   KEY_NONE,   KEY_NONE,   KEY_NONE }
 };

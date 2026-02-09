@@ -7,8 +7,7 @@
 extern MotorController_t motor_control;
 
 #define STEPS_PER_MOVE 200
-#define PERIOD_MEDIUM_US 2000
-#define PERIOD_SLOW_US 5000
+#define PERIOD_US 5000
 
 void MotorApplication_Init(void) {
 //    // Initialize TMC2208 via UART
@@ -28,33 +27,37 @@ void MotorApplication_Init(void) {
 	Motor_Init();
 }
 
-void MotorApplication_SetMotorMode(EVENT_CODES_ENUM event) {
+void MotorApplication_SetMotorMode(KEYPAD_EVENT_CODES_ENUM event) {
     switch (event) {
-        case EVT_SINGLE_CLICK:
+        case MOTOR_CLOCKWISE:
         	motor_control.direction = 0;
-        	motor_control.period_us = PERIOD_MEDIUM_US;
+        	motor_control.period_us = PERIOD_US;
         	motor_control.steps_remaining = STEPS_PER_MOVE;
         	motor_control.running = 1;
             break;
 
-        case EVT_DOUBLE_CLICK:
+        case MOTOR_ANTICLOCKWISE:
         	motor_control.direction = 1;
-        	motor_control.period_us = PERIOD_SLOW_US;
+        	motor_control.period_us = PERIOD_US;
         	motor_control.steps_remaining = STEPS_PER_MOVE;
         	motor_control.running = 1;
             break;
 
-        case EVT_HOLD_START:
-        	motor_control.direction = -1;
-        	motor_control.period_us = PERIOD_MEDIUM_US;
+        case MOTOR_CONTINUOUS:
+        	motor_control.direction = 0;
+        	motor_control.period_us = PERIOD_US;
         	motor_control.steps_remaining = 0;
         	motor_control.running = 1;
             break;
 
-        case EVT_HOLD_END:
+        case MOTOR_STOP:
         	motor_control.running = 0;
         	motor_control.accumulator_us = 0;
             break;
+
+        case MOTOR_SPEED_INCREASE:
+        	motor_control.step_pulse_width -= 5;
+        	break;
 
         default:
             break;

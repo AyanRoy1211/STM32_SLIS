@@ -4,29 +4,34 @@
 Keypad_t HardwareKeypad;
 KeypadApplicationTypedefStruct KeypadData;
 
-static EVENT_CODES_ENUM MapKeyToEvent(Keypad_Key_t key, Keypad_Event_t event_type)
+static KEYPAD_EVENT_CODES_ENUM MapKeyToEvent(Keypad_Key_t key, Keypad_Event_t event_type)
 {
     switch (key) {
-        case KEY_CLR:
+        case KEY_GRAIN_LEFT:
             if (event_type == KEYPAD_EVENT_KEY_PRESSED) {
-                return EVT_SINGLE_CLICK;
+                return MOTOR_CLOCKWISE;
             }
             break;
 
-        case KEY_ENT:
+        case KEY_GRAIN_RIGHT:
             if (event_type == KEYPAD_EVENT_KEY_PRESSED) {
-                return EVT_DOUBLE_CLICK;
+                return MOTOR_ANTICLOCKWISE;
             }
             break;
 
-        case KEY_START:
+        case KEY_WASS:
             if (event_type == KEYPAD_EVENT_KEY_HOLD) {
-                              return EVT_HOLD_START;
+                              return MOTOR_CONTINUOUS;
             }
             else if (event_type == KEYPAD_EVENT_KEY_RELEASED) {
-                           return EVT_HOLD_END;
+                           return MOTOR_STOP;
             }
             break;
+
+        case KEY_MINUS:
+        	if (event_type == KEYPAD_EVENT_KEY_PRESSED)
+        	         return MOTOR_SPEED_INCREASE;
+        	break;
 
 
         default:
@@ -63,7 +68,8 @@ void UpdateKeypad(void)
 
     EVENT_CODES_ENUM app_event = MapKeyToEvent(key, event_type);
 
-    if (app_event != EVT_NONE) {
+    if (app_event != EVT_NONE)
+    {
         KeypadData.PreviousEvent = KeypadData.CurrentEvent;
         KeypadData.CurrentEvent = app_event;
         KeypadData.NewEventReceived = true;
